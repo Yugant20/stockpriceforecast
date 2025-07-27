@@ -18,7 +18,6 @@ async function fetchCurrentPrice(symbol) {
     priceEl.textContent = `$${data.price.toFixed(2)}`;
     symbolEl.textContent = data.symbol;
     updateRecent(symbol, data.price);
-
   } catch (e) {
     document.getElementById("currentPrice").textContent = "N/A";
   }
@@ -43,7 +42,9 @@ function renderRecent() {
     card.textContent = `${stock.symbol}: $${stock.price.toFixed(2)}`;
     card.addEventListener("click", () => {
       document.getElementById("symbolInput").value = stock.symbol;
+      currentSymbol = stock.symbol;
       fetchCurrentPrice(stock.symbol);
+      fetchForecast();
     });
     container.appendChild(card);
   });
@@ -84,68 +85,24 @@ function plotChart(data) {
     data: {
       labels,
       datasets: [
-        {
-          label: "Open",
-          data: open,
-          borderColor: "#ffa600",
-          backgroundColor: "#ffa600",
-          fill: false,
-          tension: 0.3,
-          pointHoverRadius: 6
-        },
-        {
-          label: "High",
-          data: high,
-          borderColor: "#00c853",
-          backgroundColor: "#00c853",
-          fill: false,
-          tension: 0.3,
-          pointHoverRadius: 6
-        },
-        {
-          label: "Low",
-          data: low,
-          borderColor: "#d50000",
-          backgroundColor: "#d50000",
-          fill: false,
-          tension: 0.3,
-          pointHoverRadius: 6
-        },
-        {
-          label: "Close",
-          data: close,
-          borderColor: "#4cffd4",
-          backgroundColor: "#4cffd4",
-          fill: false,
-          tension: 0.3,
-          pointHoverRadius: 6
-        }
+        { label: "Open", data: open, borderColor: "#ffa600", backgroundColor: "#ffa600", fill: false, tension: 0.3, pointHoverRadius: 6 },
+        { label: "High", data: high, borderColor: "#00c853", backgroundColor: "#00c853", fill: false, tension: 0.3, pointHoverRadius: 6 },
+        { label: "Low", data: low, borderColor: "#d50000", backgroundColor: "#d50000", fill: false, tension: 0.3, pointHoverRadius: 6 },
+        { label: "Close", data: close, borderColor: "#4cffd4", backgroundColor: "#4cffd4", fill: false, tension: 0.3, pointHoverRadius: 6 }
       ]
     },
     options: {
       responsive: true,
-      interaction: {
-        mode: 'index',
-        intersect: false
-      },
+      interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: {
-          labels: { color: "#fff" },
-          position: 'top'
-        },
-        tooltip: {
-          enabled: true,
-          mode: 'nearest'
-        }
+        legend: { labels: { color: "#fff" }, position: 'top' },
+        tooltip: { enabled: true, mode: 'nearest' }
       },
       scales: {
         x: { ticks: { color: "#ccc" } },
         y: { ticks: { color: "#ccc" } }
       },
-      animation: {
-        duration: 1000,
-        easing: 'easeOutQuart'
-      }
+      animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
 }
@@ -177,8 +134,6 @@ function buildForecastTable(data) {
   });
 }
 
-// Event listeners
-
 window.addEventListener("load", () => {
   renderRecent();
 });
@@ -189,6 +144,7 @@ document.getElementById("searchBtn").addEventListener("click", () => {
   currentSymbol = symbol;
   document.querySelector(".chart-section").style.display = "none";
   document.querySelector(".table-section").style.display = "none";
+
   const forecastBtn = document.getElementById("forecastBtn");
   forecastBtn.style.display = "block";
   forecastBtn.style.margin = "20px auto";
@@ -207,6 +163,7 @@ document.getElementById("searchBtn").addEventListener("click", () => {
     forecastBtn.style.transform = "scale(1)";
     forecastBtn.style.backgroundColor = "#00cfff";
   };
+
   fetchCurrentPrice(symbol);
   if (priceInterval) clearInterval(priceInterval);
   priceInterval = setInterval(() => fetchCurrentPrice(symbol), 30000);
