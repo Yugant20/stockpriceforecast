@@ -1,9 +1,11 @@
+const BASE_URL = "https://stockpriceforecast-1.onrender.com";
+
 let currentSymbol = "";
 let priceInterval;
 
 async function fetchCurrentPrice(symbol) {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/price?symbol=${symbol}`);
+    const res = await fetch(`${BASE_URL}/price?symbol=${symbol}`);
     const data = await res.json();
 
     const priceEl = document.getElementById("currentPrice");
@@ -54,7 +56,7 @@ async function fetchForecast() {
   const symbol = currentSymbol;
   if (!symbol) return;
   try {
-    const res = await fetch(`http://127.0.0.1:8000/forecast?symbol=${symbol}`);
+    const res = await fetch(`${BASE_URL}/forecast?symbol=${symbol}`);
     const data = await res.json();
 
     if (data.error) {
