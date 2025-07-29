@@ -1,12 +1,16 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import csv
-import os
+from datetime import timedelta
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from datetime import timedelta
 from sklearn.ensemble import RandomForestRegressor
+from supabase import create_client, Client
+
+# Supabase credentials
+SUPABASE_URL = "https://jpnuwenmtlkkrnbiaops.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwbnV3ZW5tdGxra3JuYmlhb3BzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MTc2OTAsImV4cCI6MjA2OTM5MzY5MH0.S5AltZns5YmsxwDC-KYdfw35w222GphF5qxTmd1M4AI"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI()
 
@@ -20,50 +24,18 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"message": "Stock Forecast API running"}
+    return {"message": "Stock Forecast API running with Supabase SQL"}
 
-
-def save_forecast_to_csv(symbol: str, forecast: list):
-    filename = "forecast_data.csv"
-    symbol = symbol.upper()
-    existing_rows = set()
-
-    # Read existing symbol-date pairs to avoid duplicates
-    if os.path.exists(filename):
-        with open(filename, mode="r", newline="") as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                existing_rows.add((row["symbol"].strip().upper(), row["date"].strip()))
-
-    with open(filename, mode="a", newline="") as file:
-        fieldnames = ["symbol", "date", "open", "high", "low", "close"]
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-
-        if os.path.getsize(filename) == 0:
-            print("Writing CSV header")
-            writer.writeheader()
-
-        saved_count = 0
-        for day in forecast:
-            key = (symbol, day["date"].strip())
-            if key not in existing_rows:
-                writer.writerow({
-                    "symbol": symbol,
-                    "date": day["date"],
-                    "open": float(day.get("open", 0)),
-                    "high": float(day.get("high", 0)),
-                    "low": float(day.get("low", 0)),
-                    "close": float(day.get("close", 0))
-                })
-                print(f"Saved forecast for {symbol} on {day['date']}")
-                saved_count += 1
-                existing_rows.add(key)
-            else:
-                print(f"Skipped duplicate: {symbol} on {day['date']}")
-
-        if saved_count == 0:
-            print(f"No new forecasts saved for {symbol}")
-
+def save_forecast_to_db(symbol: str, forecast: list):
+    for row in forecast:
+        supabase.table("forecast_data").insert({
+            "symbol": symbol.upper(),
+            "date": row["date"],
+            "open": row.get("open", 0.0),
+            "high": row.get("high", 0.0),
+            "low": row.get("low", 0.0),
+            "close": row.get("close", 0.0)
+        }).execute()
 
 @app.get("/price")
 def get_price(symbol: str):
@@ -95,8 +67,6 @@ def forecast(symbol: str):
             return {"symbol": symbol.upper(), "forecast": []}
         elif len(df) >= 30:
             df = df[-30:]
-        else:
-            df = df[-len(df):]
 
         X = np.arange(len(df)).reshape(-1, 1)
         models = {}
@@ -121,10 +91,7 @@ def forecast(symbol: str):
                 forecast.append(prediction)
                 future_index += 1
 
-        # DEBUG LINE TO SEE WHAT DATES ARE GENERATED
-        print("Generated forecast dates:", [f['date'] for f in forecast])
-
-        save_forecast_to_csv(symbol, forecast)
+        save_forecast_to_db(symbol, forecast)
         return {"symbol": symbol.upper(), "forecast": forecast}
 
     except Exception as e:
