@@ -1,4 +1,7 @@
-const BASE_URL = "https://stockpriceforecast-1.onrender.com";
+const isLocalhost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
+const BASE_URL = isLocalhost
+  ? "http://127.0.0.1:8000"  // Local FastAPI server
+  : "https://stockpriceforecast-1.onrender.com";  // Render deployment
 
 let currentSymbol = "";
 let priceInterval;
@@ -46,7 +49,10 @@ function renderRecent() {
       document.getElementById("symbolInput").value = stock.symbol;
       currentSymbol = stock.symbol;
       fetchCurrentPrice(stock.symbol);
-      fetchForecast();
+      // Do NOT auto fetch forecast here
+      document.querySelector(".chart-section").style.display = "none";
+      document.querySelector(".table-section").style.display = "none";
+      document.getElementById("forecastBtn").style.display = "block";
     });
     container.appendChild(card);
   });
@@ -141,34 +147,26 @@ window.addEventListener("load", () => {
 });
 
 document.getElementById("searchBtn").addEventListener("click", () => {
-  const symbol = document.getElementById("symbolInput").value.trim().toUpperCase();
+  const symbolInput = document.getElementById("symbolInput");
+  const symbol = symbolInput.value.trim().toUpperCase();
   if (!symbol) return;
+
   currentSymbol = symbol;
+
+  // Hide chart & table on new search
   document.querySelector(".chart-section").style.display = "none";
   document.querySelector(".table-section").style.display = "none";
 
+  // Show forecast button (no inline styles except display)
   const forecastBtn = document.getElementById("forecastBtn");
   forecastBtn.style.display = "block";
-  forecastBtn.style.margin = "20px auto";
-  forecastBtn.style.padding = "12px 24px";
-  forecastBtn.style.borderRadius = "8px";
-  forecastBtn.style.fontSize = "16px";
-  forecastBtn.style.cursor = "pointer";
-  forecastBtn.style.backgroundColor = "#00cfff";
-  forecastBtn.style.color = "#fff";
-  forecastBtn.style.transition = "all 0.3s ease";
-  forecastBtn.onmouseover = () => {
-    forecastBtn.style.transform = "scale(1.05)";
-    forecastBtn.style.backgroundColor = "#00b5e0";
-  };
-  forecastBtn.onmouseout = () => {
-    forecastBtn.style.transform = "scale(1)";
-    forecastBtn.style.backgroundColor = "#00cfff";
-  };
 
   fetchCurrentPrice(symbol);
+
+  // Clear any existing interval and set new one for price updates every 30 seconds
   if (priceInterval) clearInterval(priceInterval);
   priceInterval = setInterval(() => fetchCurrentPrice(symbol), 30000);
 });
 
+// Only fetch forecast on button click
 document.getElementById("forecastBtn").addEventListener("click", fetchForecast);
