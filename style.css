@@ -440,3 +440,22 @@ header::after {
   border-radius: 2px;
   box-shadow: 0 0 8px #00cfff;
 }
+
+#forecastBtn {
+  display: none;
+  margin: 20px auto;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #00cfff;
+  color: #fff;
+  transition: all 0.3s ease;
+  display: block;
+  text-align: center;
+}
+
+#forecastBtn:hover {
+  transform: scale(1.05);
+  background-color: #00b5e0;
+}
