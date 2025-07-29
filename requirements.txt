@@ -2,7 +2,9 @@ fastapi
 uvicorn
 pandas
 numpy
-scikit-learn
 yfinance
-python-multipart
+scikit-learn
+python-dotenv
 supabase
+sqlalchemy
+asyncpg
