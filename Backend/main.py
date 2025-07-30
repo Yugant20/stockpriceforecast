@@ -28,14 +28,24 @@ def root():
 
 def save_forecast_to_db(symbol: str, forecast: list):
     for row in forecast:
-        supabase.table("forecast_data").insert({
-            "symbol": symbol.upper(),
-            "date": row["date"],
-            "open": row.get("open", 0.0),
-            "high": row.get("high", 0.0),
-            "low": row.get("low", 0.0),
-            "close": row.get("close", 0.0)
-        }).execute()
+        date = row["date"]
+
+       
+        exists = supabase.table("forecast_data")\
+            .select("id")\
+            .eq("symbol", symbol.upper())\
+            .eq("date", date)\
+            .execute()
+
+        if not exists.data:  
+            supabase.table("forecast_data").insert({
+                "symbol": symbol.upper(),
+                "date": date,
+                "open": row.get("open", 0.0),
+                "high": row.get("high", 0.0),
+                "low": row.get("low", 0.0),
+                "close": row.get("close", 0.0)
+            }).execute()
 
 @app.get("/price")
 def get_price(symbol: str):
