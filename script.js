@@ -1,7 +1,7 @@
 const isLocalhost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
 const BASE_URL = isLocalhost
   ? "http://127.0.0.1:8000"  // Local FastAPI server
-  : "https://stockpriceforecast-1.onrender.com";  // Render deployment
+  : "https://stockpriceforecast.fly.dev/";  // Render deployment
 
 let currentSymbol = "";
 let priceInterval;
