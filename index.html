@@ -3,26 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stock Forecast by Yugant</title>
+  <title>Stock Forecast | Yugant Jha</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="particles-js"></div>
   <div class="app-container">
     <header>
-      <h1>Stock Share Price Forecast 📉 </h1>
+      <h1>Stock Price Forecast 📉 </h1>
     </header>
-
     <section class="search-bar">
-      <input type="text" id="symbolInput" placeholder="Search Stock Symbol (e.g. AAPL)" />
+      <input type="text" id="symbolInput" placeholder="Search Stock Symbol (e.g. AAPL)" autocomplete="off" />
       <button id="searchBtn">Search</button>
+      <ul id="suggestionsList" class="suggestions"></ul>
     </section>
 
-    <section id="currentDisplay" class="current-display">
-      <h2 id="currentSymbol">--</h2>
+     <section id="currentDisplay" class="current-display">
+      <div style="display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <h2 id="currentSymbol" style="margin: 0;">--</h2>
+      <img id="stockLogo" style="height:60px;" />
+     </div>
       <p>Current Price: <span id="currentPrice">--</span></p>
-      <button id="forecastBtn" style="display:none;">View Forecast</button>
-    </section>
+     <button id="forecastBtn" style="display:none;">View Forecast</button>
+   </section>
 
     <section class="chart-section" style="display: none;">
       <canvas id="forecastChart"></canvas>
