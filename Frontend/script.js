@@ -8,21 +8,40 @@ let priceInterval;
 
 async function fetchCurrentPrice(symbol) {
   try {
-    const res = await fetch(`${BASE_URL}/price?symbol=${symbol}`);
-    const data = await res.json();
+    const [priceRes, detailsRes] = await Promise.all([
+      fetch(`${BASE_URL}/price?symbol=${symbol}`),
+      fetch(`${BASE_URL}/details?symbol=${symbol}`)
+    ]);
+
+    const priceData = await priceRes.json();
+    const detailsData = await detailsRes.json();
 
     const priceEl = document.getElementById("currentPrice");
     const symbolEl = document.getElementById("currentSymbol");
 
-    if (data.error) {
+    if (priceData.error || detailsData.error) {
       priceEl.textContent = "N/A";
       symbolEl.textContent = "--";
       return;
     }
 
-    priceEl.textContent = `$${data.price.toFixed(2)}`;
-    symbolEl.textContent = data.symbol;
-    updateRecent(symbol, data.price);
+    priceEl.textContent = `$${priceData.price.toFixed(2)}`;
+    symbolEl.textContent = `${detailsData.name} (${detailsData.symbol})`;
+
+    // Display logo if available
+    if (detailsData.logo) {
+      let logo = document.getElementById("stockLogo");
+      if (!logo) {
+        logo = document.createElement("img");
+        logo.id = "stockLogo";
+        logo.style.height = "30px";
+        logo.style.marginLeft = "10px";
+        document.querySelector("#currentDisplay h2").appendChild(logo);
+      }
+      logo.src = detailsData.logo;
+    }
+
+    updateRecent(symbol, priceData.price);
   } catch (e) {
     document.getElementById("currentPrice").textContent = "N/A";
   }
@@ -49,7 +68,6 @@ function renderRecent() {
       document.getElementById("symbolInput").value = stock.symbol;
       currentSymbol = stock.symbol;
       fetchCurrentPrice(stock.symbol);
-      // Do NOT auto fetch forecast here
       document.querySelector(".chart-section").style.display = "none";
       document.querySelector(".table-section").style.display = "none";
       document.getElementById("forecastBtn").style.display = "block";
@@ -153,20 +171,47 @@ document.getElementById("searchBtn").addEventListener("click", () => {
 
   currentSymbol = symbol;
 
-  // Hide chart & table on new search
   document.querySelector(".chart-section").style.display = "none";
   document.querySelector(".table-section").style.display = "none";
 
-  // Show forecast button (no inline styles except display)
   const forecastBtn = document.getElementById("forecastBtn");
   forecastBtn.style.display = "block";
 
   fetchCurrentPrice(symbol);
 
-  // Clear any existing interval and set new one for price updates every 30 seconds
   if (priceInterval) clearInterval(priceInterval);
   priceInterval = setInterval(() => fetchCurrentPrice(symbol), 30000);
 });
 
-// Only fetch forecast on button click
 document.getElementById("forecastBtn").addEventListener("click", fetchForecast);
+
+// Dropdown Suggestions
+const input = document.getElementById("symbolInput");
+const dropdown = document.getElementById("suggestionsList");
+
+input.addEventListener("input", async () => {
+  const query = input.value.trim();
+  if (query.length < 2) {
+    dropdown.innerHTML = "";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/search-symbol?query=${query}`);
+    const data = await res.json();
+
+    dropdown.innerHTML = "";
+    data.results.forEach(({ symbol, name }) => {
+      const li = document.createElement("li");
+      li.textContent = `${symbol} - ${name}`;
+      li.className = "dropdown-item";
+      li.onclick = () => {
+        input.value = symbol;
+        dropdown.innerHTML = "";
+      };
+      dropdown.appendChild(li);
+    });
+  } catch (err) {
+    dropdown.innerHTML = "";
+  }
+});

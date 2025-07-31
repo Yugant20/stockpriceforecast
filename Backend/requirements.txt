@@ -6,3 +6,4 @@ scikit-learn
 yfinance
 python-multipart
 supabase
+pydantic

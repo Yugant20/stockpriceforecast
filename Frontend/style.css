@@ -459,3 +459,59 @@ header::after {
   transform: scale(1.05);
   background-color: #00b5e0;
 }
+
+.company-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.company-header img {
+  height: 40px;
+  width: 40px;
+  border-radius: 8px;
+  object-fit: contain;
+  background-color: white;
+}
+.search-bar {
+  position: relative;
+  width: 1000px;
+  margin: 0 auto 80px auto; /* centers the div horizontally */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  z-index: 1;
+}
+.suggestions {
+  position: absolute;
+  top: 100%;   /* right below the search bar */
+  left: 230px;
+  width: 435px; /* same width as search bar */
+  max-height: 120px;
+  overflow-y: auto;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  color: #eee;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  z-index: 1000;
+}
+
+.suggestions li {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+  transition: background-color 0.3s ease;
+}
+
+.suggestions li:last-child {
+  border-bottom: none;
+}
+
+.suggestions li:hover {
+  background-color: #3a3a3a;
+  color: #fff;
+}
