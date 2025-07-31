@@ -1,0 +1,517 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0e101c;
+  color: #ffffff;
+  overflow-x: hidden;
+  position: relative;
+}
+
+#particles-js {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  top: 0;
+  left: 0;
+}
+
+.app-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+header h1 span {
+  color: #4cffd4;
+  text-shadow: 0 0 6px #4cffd4;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  width: 60%;
+}
+
+.search-bar button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #4cffd4;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-bar button:hover {
+  background-color: #37e6b6;
+}
+
+.current-display {
+  text-align: center;
+  margin: 20px 0;
+}
+
+#currentSymbol {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+#currentPrice {
+  font-size: 1.6rem;
+  color: #4cffd4;
+  font-weight: bold;
+  text-shadow: 0 0 8px #4cffd4;
+}
+
+#forecastBtn {
+  margin-top: 15px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #2d89ef;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#forecastBtn:hover {
+  background-color: #246fbe;
+}
+
+.recent-section {
+  margin-top: 40px;
+}
+
+.recent-section h3 {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.recent-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.recent-card {
+  background-color: #1c1f2a;
+  padding: 12px 18px;
+  border-radius: 10px;
+  color: #eee;
+  box-shadow: 0 0 10px rgba(76, 255, 212, 0.2);
+  min-width: 120px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.recent-card:hover {
+  transform: translateY(-5px);
+}
+
+.chart-section,
+.table-section {
+  margin-top: 30px;
+}
+
+#forecastTable {
+  width: 100%;
+  border-collapse: collapse;
+  color: #fff;
+}
+
+#forecastTable th, #forecastTable td {
+  border: 1px solid #444;
+  padding: 10px;
+  text-align: center;
+}
+
+#forecastTable th {
+  background-color: #2d2f3a;
+}
+
+.footer {
+  margin-top: 60px;
+  padding: 20px 0;
+  text-align: center;
+  border-top: 1px solid #333;
+  color: #888;
+}
+
+.footer-content img {
+  vertical-align: middle;
+  margin-bottom: 8px;
+}
+
+.footer-content p {
+  margin: 5px 0 0;
+  font-size: 0.95rem;
+}
+
+.recent-card {
+  background: linear-gradient(145deg, #1e1e2f, #2e2e3f);
+  color: #ffffff;
+  padding: 15px 20px;
+  margin: 10px;
+  border-radius: 12px;
+  box-shadow: 0 8px 15px rgba(0,0,0,0.25);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  font-size: 16px;
+  font-weight: 500;
+  display: inline-block;
+  min-width: 160px;
+  text-align: center;
+}
+
+.recent-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+  background: linear-gradient(145deg, #2b2b3f, #3b3b5f);
+}
+
+.recent-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  color: #fff;
+  padding: 15px 20px;
+  margin: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-size: 16px;
+  font-weight: 500;
+  min-width: 160px;
+  text-align: center;
+}
+
+.recent-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Glass style for the forecast table */
+#forecastTable {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  color: #fff;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+#forecastTable thead tr {
+  background: rgba(255, 255, 255, 0.15);
+  font-weight: bold;
+}
+
+#forecastTable th, #forecastTable td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#forecastTable tbody tr:hover {
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.floating-graphic {
+  position: fixed;
+  top: 50%;
+  width: 120px;
+  opacity: 0.15;
+  transform: translateY(-50%);
+  pointer-events: none; /* So it doesn't block clicks */
+  animation: floatUpDown 6s ease-in-out infinite;
+  z-index: 0;
+}
+
+.floating-graphic.left {
+  left: 10px;
+  animation-delay: 0s;
+}
+
+.floating-graphic.right {
+  right: 10px;
+  animation-delay: 3s;
+}
+
+@keyframes floatUpDown {
+  0%, 100% {
+    transform: translateY(-50%) translateY(0);
+  }
+  50% {
+    transform: translateY(-50%) translateY(-20px);
+  }
+}
+.floating-left, .floating-right {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.25;
+}
+
+.floating-left {
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  animation: floatUpDown 7s ease-in-out infinite;
+}
+
+.floating-right {
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  animation: floatUpDown 6s ease-in-out infinite reverse;
+}
+
+.float-svg {
+  width: 80px;
+  height: 80px;
+  filter: drop-shadow(0 0 5px rgba(0, 204, 255, 0.7));
+  transition: filter 0.3s ease;
+}
+
+.float-svg.small {
+  width: 50px;
+  height: 50px;
+  filter: drop-shadow(0 0 3px rgba(0, 181, 224, 0.6));
+}
+
+.float-svg:hover {
+  filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.9));
+  cursor: default;
+}
+
+@keyframes floatUpDown {
+  0%, 100% {
+    transform: translateY(-50%) translateY(0);
+  }
+  50% {
+    transform: translateY(-50%) translateY(-20px);
+  }
+}
+#symbolInput {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px 20px;
+  color: white;
+  font-size: 18px;
+  width: 320px;
+  outline: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.3s ease;
+}
+
+#symbolInput:focus {
+  border-color: #00cfff;
+  box-shadow: 0 0 8px #00cfff;
+}
+.floating-left, .floating-right {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.25;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.floating-left {
+  left: 10px;
+  animation: floatUpDown 7s ease-in-out infinite;
+}
+
+.floating-right {
+  right: 10px;
+  animation: floatUpDown 6s ease-in-out infinite reverse;
+}
+
+.float-svg {
+  width: 80px;
+  height: 80px;
+  filter: drop-shadow(0 0 5px rgba(0, 204, 255, 0.7));
+  transition: filter 0.3s ease;
+}
+
+.float-svg.small {
+  width: 50px;
+  height: 50px;
+  filter: drop-shadow(0 0 3px rgba(0, 181, 224, 0.6));
+}
+
+.float-svg:hover {
+  filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.9));
+  cursor: default;
+}
+
+@keyframes floatUpDown {
+  0%, 100% {
+    transform: translateY(-50%) translateY(0);
+  }
+  50% {
+    transform: translateY(-50%) translateY(-20px);
+  }
+}
+/* Glassmorphic Search Bar - longer & sleek */
+#symbolInput {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.8px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  padding: 14px 24px;
+  color: white;
+  font-size: 20px;
+  width: 400px; /* increased length */
+  max-width: 90vw;
+  outline: none;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+#symbolInput:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 10px #00d4ff;
+}
+
+/* Header styling */
+header {
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #00cfff;
+  text-shadow:
+    0 0 5px #00cfff,
+    0 0 10px #00cfff,
+    0 0 20px #00a0cc;
+  margin-bottom: 30px;
+  user-select: none;
+}
+
+/* Optional: Add a subtle underline/glow below header */
+header::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 3px;
+  margin: 12px auto 0;
+  background: linear-gradient(90deg, #00cfff, #008ecc);
+  border-radius: 2px;
+  box-shadow: 0 0 8px #00cfff;
+}
+
+#forecastBtn {
+  display: none;
+  margin: 20px auto;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #00cfff;
+  color: #fff;
+  transition: all 0.3s ease;
+  display: block;
+  text-align: center;
+}
+
+#forecastBtn:hover {
+  transform: scale(1.05);
+  background-color: #00b5e0;
+}
+
+.company-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.company-header img {
+  height: 40px;
+  width: 40px;
+  border-radius: 8px;
+  object-fit: contain;
+  background-color: white;
+}
+.search-bar {
+  position: relative;
+  width: 1000px;
+  margin: 0 auto 80px auto; /* centers the div horizontally */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  z-index: 1;
+}
+.suggestions {
+  position: absolute;
+  top: 100%;   /* right below the search bar */
+  left: 230px;
+  width: 435px; /* same width as search bar */
+  max-height: 120px;
+  overflow-y: auto;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  color: #eee;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  z-index: 1000;
+}
+
+.suggestions li {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+  transition: background-color 0.3s ease;
+}
+
+.suggestions li:last-child {
+  border-bottom: none;
+}
+
+.suggestions li:hover {
+  background-color: #3a3a3a;
+  color: #fff;
+}
