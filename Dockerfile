@@ -1,21 +1,18 @@
-FROM python:3.12.1 AS builder
+FROM python:3.12-slim
 
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
+# Set working directory
 WORKDIR /app
 
-RUN python -m venv .venv
-COPY requirements.txt ./
-RUN .venv/bin/pip install -r requirements.txt
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-FROM python:3.12.1-slim
-
-WORKDIR /app
-
-COPY --from=builder /app/.venv .venv/
+# Copy all files
 COPY . .
 
-ENV PATH="/app/.venv/bin:$PATH"
-
+# Run the app
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
