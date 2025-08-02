@@ -13,7 +13,7 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # API Keys
-FINNHUB_API_KEY = "d258bt1r01qns40dnuc0d258bt1r01qns40dnucg"
+FINNHUB_API_KEY = "d279ig9r01qloari4pn0d279ig9r01qloari4png"
 ALPHA_VANTAGE_API_KEY = "NVHS1RSTQTRKIJR7"
 
 app = FastAPI()
