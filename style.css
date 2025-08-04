@@ -170,28 +170,6 @@ header h1 span {
 }
 
 .recent-card {
-  background: linear-gradient(145deg, #1e1e2f, #2e2e3f);
-  color: #ffffff;
-  padding: 15px 20px;
-  margin: 10px;
-  border-radius: 12px;
-  box-shadow: 0 8px 15px rgba(0,0,0,0.25);
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-  font-size: 16px;
-  font-weight: 500;
-  display: inline-block;
-  min-width: 160px;
-  text-align: center;
-}
-
-.recent-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 20px rgba(0,0,0,0.4);
-  background: linear-gradient(145deg, #2b2b3f, #3b3b5f);
-}
-
-.recent-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -246,6 +224,7 @@ header h1 span {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+
 .floating-graphic {
   position: fixed;
   top: 50%;
@@ -267,83 +246,6 @@ header h1 span {
   animation-delay: 3s;
 }
 
-@keyframes floatUpDown {
-  0%, 100% {
-    transform: translateY(-50%) translateY(0);
-  }
-  50% {
-    transform: translateY(-50%) translateY(-20px);
-  }
-}
-.floating-left, .floating-right {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.25;
-}
-
-.floating-left {
-  left: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  animation: floatUpDown 7s ease-in-out infinite;
-}
-
-.floating-right {
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  animation: floatUpDown 6s ease-in-out infinite reverse;
-}
-
-.float-svg {
-  width: 80px;
-  height: 80px;
-  filter: drop-shadow(0 0 5px rgba(0, 204, 255, 0.7));
-  transition: filter 0.3s ease;
-}
-
-.float-svg.small {
-  width: 50px;
-  height: 50px;
-  filter: drop-shadow(0 0 3px rgba(0, 181, 224, 0.6));
-}
-
-.float-svg:hover {
-  filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.9));
-  cursor: default;
-}
-
-@keyframes floatUpDown {
-  0%, 100% {
-    transform: translateY(-50%) translateY(0);
-  }
-  50% {
-    transform: translateY(-50%) translateY(-20px);
-  }
-}
-#symbolInput {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  padding: 12px 20px;
-  color: white;
-  font-size: 18px;
-  width: 320px;
-  outline: none;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: border-color 0.3s ease;
-}
-
-#symbolInput:focus {
-  border-color: #00cfff;
-  box-shadow: 0 0 8px #00cfff;
-}
 .floating-left, .floating-right {
   position: fixed;
   top: 50%;
@@ -392,6 +294,7 @@ header h1 span {
     transform: translateY(-50%) translateY(-20px);
   }
 }
+
 /* Glassmorphic Search Bar - longer & sleek */
 #symbolInput {
   background: rgba(255, 255, 255, 0.12);
@@ -474,6 +377,7 @@ header::after {
   object-fit: contain;
   background-color: white;
 }
+
 .search-bar {
   position: relative;
   width: 1000px;
@@ -482,6 +386,7 @@ header::after {
   font-size: 14px;
   z-index: 1;
 }
+
 .suggestions {
   position: absolute;
   top: 100%;   /* right below the search bar */
@@ -514,4 +419,96 @@ header::after {
 .suggestions li:hover {
   background-color: #3a3a3a;
   color: #fff;
+}
+
+/* Time Period Buttons Styling */
+.time-period-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+}
+
+.period-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  min-width: 50px;
+}
+
+.period-btn:hover {
+  background: rgba(0, 207, 255, 0.2);
+  border-color: rgba(0, 207, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 207, 255, 0.3);
+}
+
+.period-btn.active {
+  background: linear-gradient(135deg, #00cfff, #00b5e0);
+  color: #000;
+  border-color: #00cfff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 207, 255, 0.4);
+}
+
+.period-btn.active:hover {
+  background: linear-gradient(135deg, #00b5e0, #008ecc);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 207, 255, 0.5);
+}
+
+/* Enhanced Chart Section */
+.chart-section {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 25px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  margin-top: 30px;
+}
+
+#forecastChart {
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Responsive Design for Time Period Buttons */
+@media (max-width: 768px) {
+  .time-period-buttons {
+    gap: 8px;
+  }
+  
+  .period-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-width: 40px;
+  }
+  
+  .search-bar {
+    width: 90%;
+  }
+  
+  #symbolInput {
+    width: 100%;
+    font-size: 16px;
+  }
+  
+  .suggestions {
+    left: 0;
+    width: 100%;
+  }
 }

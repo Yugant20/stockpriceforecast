@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import numpy as np
-from datetime import timedelta
+from datetime import timedelta, datetime
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sklearn.ensemble import RandomForestRegressor
@@ -70,6 +70,72 @@ def get_company_details(symbol: str):
             "symbol": data.get("ticker", symbol.upper())
         }
     except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/historical")
+def get_historical_data(symbol: str, period: str = "1M"):
+    """
+    Get historical stock data for different time periods
+    period: 1W, 1M, 3M, 6M, 1Y
+    """
+    try:
+        # Use Alpha Vantage for daily data
+        url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={ALPHA_VANTAGE_API_KEY}"
+        res = requests.get(url).json()
+        time_series = res.get("Time Series (Daily)", {})
+
+        if not time_series:
+            return {"symbol": symbol.upper(), "historical": [], "error": "No historical data found"}
+
+        df = pd.DataFrame.from_dict(time_series, orient="index")
+        df.rename(columns={
+            "1. open": "open",
+            "2. high": "high",
+            "3. low": "low",
+            "4. close": "close",
+            "5. volume": "volume"
+        }, inplace=True)
+
+        df.index = pd.to_datetime(df.index)
+        df = df.sort_index()
+        df = df.astype(float)
+
+        # Filter based on period
+        end_date = df.index[-1]
+        if period == "1W":
+            start_date = end_date - timedelta(days=7)
+        elif period == "1M":
+            start_date = end_date - timedelta(days=30)
+        elif period == "3M":
+            start_date = end_date - timedelta(days=90)
+        elif period == "6M":
+            start_date = end_date - timedelta(days=180)
+        elif period == "1Y":
+            start_date = end_date - timedelta(days=365)
+        else:
+            start_date = end_date - timedelta(days=30)  # default to 1M
+
+        filtered_df = df[df.index >= start_date]
+
+        # Convert to list of dictionaries
+        historical_data = []
+        for date, row in filtered_df.iterrows():
+            historical_data.append({
+                "date": date.strftime("%m-%d-%y"),
+                "open": round(row['open'], 2),
+                "high": round(row['high'], 2),
+                "low": round(row['low'], 2),
+                "close": round(row['close'], 2)
+            })
+
+        return {
+            "symbol": symbol.upper(),
+            "period": period,
+            "historical": historical_data
+        }
+
+    except Exception as e:
+        print(f"Error in /historical: {e}")
         return {"error": str(e)}
 
 def save_forecast_to_db(symbol: str, forecast: list):
@@ -144,7 +210,7 @@ def forecast(symbol: str):
             while next_date.weekday() >= 5:
                 next_date += timedelta(days=1)
 
-            prediction = {"date": str(next_date.date())}
+            prediction = {"date": next_date.strftime("%m/%d/%Y")}
             new_row = {}
 
             for col in target_cols:
@@ -172,4 +238,3 @@ def forecast(symbol: str):
     except Exception as e:
         print(f"Error in /forecast: {e}")
         return {"error": str(e)}
-
