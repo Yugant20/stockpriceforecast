@@ -31,7 +31,6 @@ async function fetchCurrentPrice(symbol) {
     priceEl.textContent = `$${priceData.price.toFixed(2)}`;
     symbolEl.textContent = `${detailsData.name} (${detailsData.symbol})`;
 
-    // Display logo if available
     if (detailsData.logo) {
       let logo = document.getElementById("stockLogo");
       if (!logo) {

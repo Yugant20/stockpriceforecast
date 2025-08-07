@@ -193,7 +193,7 @@ header h1 span {
   border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-/* Glass style for the forecast table */
+
 #forecastTable {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
@@ -295,7 +295,7 @@ header h1 span {
   }
 }
 
-/* Glassmorphic Search Bar - longer & sleek */
+
 #symbolInput {
   background: rgba(255, 255, 255, 0.12);
   border: 1.8px solid rgba(255, 255, 255, 0.35);
@@ -303,7 +303,7 @@ header h1 span {
   padding: 14px 24px;
   color: white;
   font-size: 20px;
-  width: 400px; /* increased length */
+  width: 400px; 
   max-width: 90vw;
   outline: none;
   backdrop-filter: blur(14px);
@@ -317,7 +317,7 @@ header h1 span {
   box-shadow: 0 0 10px #00d4ff;
 }
 
-/* Header styling */
+
 header {
   text-align: center;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -332,7 +332,6 @@ header {
   user-select: none;
 }
 
-/* Optional: Add a subtle underline/glow below header */
 header::after {
   content: "";
   display: block;
@@ -381,7 +380,7 @@ header::after {
 .search-bar {
   position: relative;
   width: 1000px;
-  margin: 0 auto 80px auto; /* centers the div horizontally */
+  margin: 0 auto 80px auto; 
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 14px;
   z-index: 1;
@@ -389,9 +388,9 @@ header::after {
 
 .suggestions {
   position: absolute;
-  top: 100%;   /* right below the search bar */
+  top: 100%; 
   left: 230px;
-  width: 435px; /* same width as search bar */
+  width: 435px; 
   max-height: 120px;
   overflow-y: auto;
   background-color: #1e1e1e;
@@ -421,7 +420,6 @@ header::after {
   color: #fff;
 }
 
-/* Time Period Buttons Styling */
 .time-period-buttons {
   display: flex;
   justify-content: center;
@@ -469,7 +467,7 @@ header::after {
   box-shadow: 0 8px 30px rgba(0, 207, 255, 0.5);
 }
 
-/* Enhanced Chart Section */
+
 .chart-section {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(15px);
@@ -486,7 +484,6 @@ header::after {
   background: rgba(255, 255, 255, 0.02);
 }
 
-/* Responsive Design for Time Period Buttons */
 @media (max-width: 768px) {
   .time-period-buttons {
     gap: 8px;

@@ -1,18 +1,16 @@
 import requests
 import pandas as pd
-import numpy as np
-from datetime import timedelta, datetime
+from datetime import timedelta
+import yfinance as yf
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
 from supabase import create_client, Client
 
-# Supabase credentials
 SUPABASE_URL = "https://jpnuwenmtlkkrnbiaops.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwbnV3ZW5tdGxra3JuYmlhb3BzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MTc2OTAsImV4cCI6MjA2OTM5MzY5MH0.S5AltZns5YmsxwDC-KYdfw35w222GphF5qxTmd1M4AI"  # keep secret
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwbnV3ZW5tdGxra3JuYmlhb3BzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MTc2OTAsImV4cCI6MjA2OTM5MzY5MH0.S5AltZns5YmsxwDC-KYdfw35w222GphF5qxTmd1M4AI"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# API Keys
 FINNHUB_API_KEY = "d279ig9r01qloari4pn0d279ig9r01qloari4png"
 ALPHA_VANTAGE_API_KEY = "NVHS1RSTQTRKIJR7"
 
@@ -74,59 +72,53 @@ def get_company_details(symbol: str):
 
 @app.get("/historical")
 def get_historical_data(symbol: str, period: str = "1M"):
-    """
-    Get historical stock data for different time periods
-    period: 1W, 1M, 3M, 6M, 1Y
-    """
     try:
-        # Use Alpha Vantage for daily data
-        url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={ALPHA_VANTAGE_API_KEY}"
-        res = requests.get(url).json()
-        time_series = res.get("Time Series (Daily)", {})
-
-        if not time_series:
-            return {"symbol": symbol.upper(), "historical": [], "error": "No historical data found"}
-
-        df = pd.DataFrame.from_dict(time_series, orient="index")
-        df.rename(columns={
-            "1. open": "open",
-            "2. high": "high",
-            "3. low": "low",
-            "4. close": "close",
-            "5. volume": "volume"
-        }, inplace=True)
-
-        df.index = pd.to_datetime(df.index)
-        df = df.sort_index()
-        df = df.astype(float)
-
-        # Filter based on period
-        end_date = df.index[-1]
-        if period == "1W":
-            start_date = end_date - timedelta(days=7)
-        elif period == "1M":
-            start_date = end_date - timedelta(days=30)
-        elif period == "3M":
-            start_date = end_date - timedelta(days=90)
-        elif period == "6M":
-            start_date = end_date - timedelta(days=180)
-        elif period == "1Y":
-            start_date = end_date - timedelta(days=365)
-        else:
-            start_date = end_date - timedelta(days=30)  # default to 1M
-
-        filtered_df = df[df.index >= start_date]
-
-        # Convert to list of dictionaries
+        periods_map = {
+            "1W": "7d", "1M": "1mo", "3M": "3mo",
+            "6M": "6mo", "1Y": "1y"
+        }
+        yf_period = periods_map.get(period, "1mo")
+        df = yf.download(symbol, period=yf_period, interval="1d", progress=False, auto_adjust=True)
+        
+        if df.empty:
+            return {
+                "symbol": symbol.upper(),
+                "period": period,
+                "historical": [],
+                "error": "No data found for this symbol"
+            }
+        
+        if hasattr(df.columns, 'levels') and len(df.columns.levels) > 1:
+            df.columns = df.columns.droplevel(1)
+            
+        df = df.dropna().reset_index()
+        
+        if df.empty:
+            return {
+                "symbol": symbol.upper(),
+                "period": period,
+                "historical": [],
+                "error": "No valid data after cleaning"
+            }
+        
         historical_data = []
-        for date, row in filtered_df.iterrows():
-            historical_data.append({
-                "date": date.strftime("%m-%d-%y"),
-                "open": round(row['open'], 2),
-                "high": round(row['high'], 2),
-                "low": round(row['low'], 2),
-                "close": round(row['close'], 2)
-            })
+        for _, row in df.iterrows():
+            try:
+                date_val = row["Date"]
+                if hasattr(date_val, 'strftime'):
+                    date_str = date_val.strftime("%m-%d-%y")
+                else:
+                    date_str = str(date_val)[:10]
+                
+                historical_data.append({
+                    "date": date_str,
+                    "open": round(row["Open"] if pd.api.types.is_scalar(row["Open"]) else row["Open"].iloc[0], 2),
+                    "high": round(row["High"] if pd.api.types.is_scalar(row["High"]) else row["High"].iloc[0], 2),
+                    "low": round(row["Low"] if pd.api.types.is_scalar(row["Low"]) else row["Low"].iloc[0], 2),
+                    "close": round(row["Close"] if pd.api.types.is_scalar(row["Close"]) else row["Close"].iloc[0], 2)
+                })
+            except Exception as row_error:
+                continue
 
         return {
             "symbol": symbol.upper(),
@@ -135,106 +127,184 @@ def get_historical_data(symbol: str, period: str = "1M"):
         }
 
     except Exception as e:
-        print(f"Error in /historical: {e}")
         return {"error": str(e)}
 
 def save_forecast_to_db(symbol: str, forecast: list):
-    for row in forecast:
-        date = row["date"]
-        exists = supabase.table("forecast_data")\
-            .select("id")\
-            .eq("symbol", symbol.upper())\
-            .eq("date", date)\
-            .execute()
+    try:
+        for row in forecast:
+            date = row["date"]
+            exists = supabase.table("forecast_data")\
+                .select("id")\
+                .eq("symbol", symbol.upper())\
+                .eq("date", date)\
+                .execute()
 
-        if not exists.data:
-            supabase.table("forecast_data").insert({
-                "symbol": symbol.upper(),
-                "date": date,
-                "open": row.get("open", 0.0),
-                "high": row.get("high", 0.0),
-                "low": row.get("low", 0.0),
-                "close": row.get("close", 0.0)
-            }).execute()
+            if not exists.data:
+                supabase.table("forecast_data").insert({
+                    "symbol": symbol.upper(),
+                    "date": date,
+                    "open": row.get("open", 0.0),
+                    "high": row.get("high", 0.0),
+                    "low": row.get("low", 0.0),
+                    "close": row.get("close", 0.0)
+                }).execute()
+    except Exception:
+        pass
 
 @app.get("/forecast")
 def forecast(symbol: str):
     try:
-        url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={ALPHA_VANTAGE_API_KEY}"
-        res = requests.get(url).json()
-        time_series = res.get("Time Series (Daily)", {})
+        df = yf.download(symbol, period="1y", interval="1d", progress=False, auto_adjust=True)
+        
+        if df.empty:
+            return {
+                "symbol": symbol.upper(),
+                "forecast": [],
+                "error": f"No data found for symbol {symbol}. Please check if the symbol is valid."
+            }
+        
+        df = df.dropna().reset_index()
+        
+        if hasattr(df.columns, 'levels'):
+            df.columns = df.columns.droplevel(1)
+        
+        if len(df) < 10:
+            return {
+                "symbol": symbol.upper(),
+                "forecast": [],
+                "error": "Not enough historical data (at least 10 days required) to generate a forecast."
+            }
 
-        if not time_series:
-            return {"symbol": symbol.upper(), "forecast": []}
-
-        df = pd.DataFrame.from_dict(time_series, orient="index")
-        df.rename(columns={
-            "1. open": "Open",
-            "2. high": "High",
-            "3. low": "Low",
-            "4. close": "Close"
-        }, inplace=True)
-
-        df.index = pd.to_datetime(df.index)
+        required_columns = ["Date", "Open", "High", "Low", "Close"]
+        available_columns = df.columns.tolist()
+        
+        missing_columns = [col for col in required_columns if col not in available_columns]
+        if missing_columns:
+            return {
+                "symbol": symbol.upper(),
+                "forecast": [],
+                "error": f"Missing required columns: {missing_columns}"
+            }
+        
+        df = df[required_columns].copy()
+        df.rename(columns={"Date": "date"}, inplace=True)
+        df.set_index("date", inplace=True)
         df = df.sort_index()
-        df = df.astype(float)
 
-        # Create lag features
+        original_length = len(df)
         for lag in range(1, 4):
             for col in ["Open", "High", "Low", "Close"]:
                 df[f"{col}_lag{lag}"] = df[col].shift(lag)
 
         df.dropna(inplace=True)
+
+        if len(df) < 5:
+            return {
+                "symbol": symbol.upper(),
+                "forecast": [],
+                "error": f"Not enough historical data after feature engineering. Need at least 5 rows, got {len(df)}."
+            }
+        
         feature_cols = [col for col in df.columns if "lag" in col]
         target_cols = ["Open", "High", "Low", "Close"]
+        
+        if len(feature_cols) != 12:
+            return {
+                "symbol": symbol.upper(),
+                "forecast": [],
+                "error": f"Expected 12 feature columns, got {len(feature_cols)}"
+            }
 
         models = {}
         for col in target_cols:
-            model = RandomForestRegressor(n_estimators=100, random_state=42)
+            model = XGBRegressor(
+                n_estimators=100,
+                learning_rate=0.1,
+                max_depth=3,
+                subsample=0.8,
+                colsample_bytree=0.8,
+                random_state=42,
+                verbosity=0
+            )
             model.fit(df[feature_cols], df[col])
             models[col] = model
 
-        forecast = []
-        last_known = df.iloc[-3:].copy()  # Only keep 3 rows to manage lag logic
+        forecast_data = []
+        
+        if len(df) < 3:
+            return {
+                "symbol": symbol.upper(),
+                "forecast": [],
+                "error": f"Not enough data for forecasting. Need at least 3 rows, got {len(df)}."
+            }
+            
+        last_known = df.tail(3).copy()
         last_date = df.index[-1]
 
-        for _ in range(7):
-            # Create input features from last 3 known rows
-            input_features = {}
-            for col in target_cols:
-                input_features[f"{col}_lag1"] = last_known.iloc[-1][col]
-                input_features[f"{col}_lag2"] = last_known.iloc[-2][col]
-                input_features[f"{col}_lag3"] = last_known.iloc[-3][col]
+        for day in range(7):
+            try:
+                if len(last_known) < 3:
+                    break
+                
+                input_features = {}
+                for col in target_cols:
+                    try:
+                        val1 = last_known.iloc[-1][col]
+                        val2 = last_known.iloc[-2][col]
+                        val3 = last_known.iloc[-3][col]
+                        
+                        input_features[f"{col}_lag1"] = float(val1) if pd.api.types.is_scalar(val1) else float(val1.iloc[0])
+                        input_features[f"{col}_lag2"] = float(val2) if pd.api.types.is_scalar(val2) else float(val2.iloc[0])
+                        input_features[f"{col}_lag3"] = float(val3) if pd.api.types.is_scalar(val3) else float(val3.iloc[0])
+                    except IndexError:
+                        raise
 
-            next_date = last_date + timedelta(days=1)
-            while next_date.weekday() >= 5:
-                next_date += timedelta(days=1)
+                next_date = last_date + timedelta(days=1)
+                while next_date.weekday() >= 5:
+                    next_date += timedelta(days=1)
 
-            prediction = {"date": next_date.strftime("%m/%d/%Y")}
-            new_row = {}
+                prediction = {"date": next_date.strftime("%m/%d/%Y")}
+                new_row = {}
 
-            for col in target_cols:
-                input_df = pd.DataFrame([list(input_features.values())], columns=feature_cols)
-                pred = models[col].predict(input_df)[0]
-                prediction[col.lower()] = round(pred, 2)
-                new_row[col] = pred
+                for col in target_cols:
+                    try:
+                        input_df = pd.DataFrame([input_features], columns=feature_cols)
+                        pred = models[col].predict(input_df)[0]
+                        prediction[col.lower()] = round(float(pred), 2)
+                        new_row[col] = float(pred)
+                    except Exception:
+                        raise
 
-            forecast.append(prediction)
+                forecast_data.append(prediction)
 
-            # Prepare new_row for next prediction cycle with updated lags
-            for col in target_cols:
-                new_row[f"{col}_lag1"] = input_features[f"{col}_lag1"]
-                new_row[f"{col}_lag2"] = input_features[f"{col}_lag2"]
-                new_row[f"{col}_lag3"] = input_features[f"{col}_lag3"]
+                new_row_data = {}
+                for col in target_cols:
+                    new_row_data[col] = new_row[col]
+                    val1 = last_known.iloc[-1][col]
+                    val2 = last_known.iloc[-2][col]
+                    val3 = last_known.iloc[-3][col]
+                    
+                    new_row_data[f"{col}_lag1"] = float(val1) if pd.api.types.is_scalar(val1) else float(val1.iloc[0])
+                    new_row_data[f"{col}_lag2"] = float(val2) if pd.api.types.is_scalar(val2) else float(val2.iloc[0])
+                    new_row_data[f"{col}_lag3"] = float(val3) if pd.api.types.is_scalar(val3) else float(val3.iloc[0])
 
-            new_row_df = pd.DataFrame([new_row], index=[next_date])
-            last_known = pd.concat([last_known, new_row_df])
-            last_known = last_known.iloc[-3:]  # Keep only last 3 rows
-            last_date = next_date
+                new_row_df = pd.DataFrame([new_row_data], index=[next_date])
+                
+                last_known = pd.concat([last_known, new_row_df])
+                last_known = last_known.tail(3)
+                last_date = next_date
 
-        save_forecast_to_db(symbol, forecast)
-        return {"symbol": symbol.upper(), "forecast": forecast}
+            except Exception:
+                break
+
+        if forecast_data:
+            save_forecast_to_db(symbol, forecast_data)
+        
+        return {"symbol": symbol.upper(), "forecast": forecast_data}
 
     except Exception as e:
-        print(f"Error in /forecast: {e}")
-        return {"error": str(e)}
+        return {
+            "symbol": symbol.upper(),
+            "forecast": [],
+            "error": f"Exception: {str(e)}"
+        }

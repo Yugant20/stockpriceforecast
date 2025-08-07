@@ -13,7 +13,7 @@
       <h1>Stock Price Forecast 📉 </h1>
     </header>
     <section class="search-bar">
-      <input type="text" id="symbolInput" placeholder="Search Stock Symbol (e.g. AAPL)" autocomplete="off" />
+      <input type="text" id="symbolInput" placeholder="Search Stock Name/Symbol (eg. TSLA)" autocomplete="off" />
       <button id="searchBtn">Search</button>
       <ul id="suggestionsList" class="suggestions"></ul>
     </section>
@@ -81,27 +81,22 @@
       </svg>
     </div>
 
-    <!-- Floating SVGs Right -->
     <div class="floating-right">
-      <!-- Step Chart -->
       <svg class="float-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <polyline points="8,48 16,48 16,36 24,36 24,20 32,20 32,28 40,28 40,16 48,16 48,44 56,44" stroke="#00cfff" stroke-width="4" fill="none"/>
       </svg>
 
-      <!-- Circle with upward arrow -->
       <svg class="float-svg small" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="32" cy="32" r="28" stroke="#00cfff" stroke-width="4" />
         <path d="M24 38 L32 26 L40 38" stroke="#00b5e0" stroke-width="3" fill="none" />
         <line x1="32" y1="26" x2="32" y2="46" stroke="#00b5e0" stroke-width="3"/>
       </svg>
 
-      <!-- Dollar sign -->
       <svg class="float-svg small" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#00b5e0" stroke-width="3">
         <path d="M32 12 v40" />
         <path d="M22 20 h20 a6 6 0 1 1 0 24 h-20" />
       </svg>
 
-      <!-- Bar + line combo -->
       <svg class="float-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="10" y="34" width="8" height="20" fill="#00cfff"/>
         <rect x="24" y="26" width="8" height="28" fill="#00b5e0"/>
@@ -161,7 +156,6 @@ async function fetchCurrentPrice(symbol) {
     priceEl.textContent = `$${priceData.price.toFixed(2)}`;
     symbolEl.textContent = `${detailsData.name} (${detailsData.symbol})`;
 
-    // Display logo if available
     if (detailsData.logo) {
       let logo = document.getElementById("stockLogo");
       if (!logo) {
@@ -231,7 +225,6 @@ async function fetchForecast() {
   if (!symbol) return;
   
   try {
-    // Fetch both historical and forecast data
     const [historicalRes, forecastRes] = await Promise.all([
       fetchHistoricalData(symbol, currentPeriod),
       fetch(`${BASE_URL}/forecast?symbol=${symbol}`)
@@ -247,7 +240,6 @@ async function fetchForecast() {
     
     forecastData = forecastResult.forecast || [];
     
-    // Show time period buttons and chart
     showTimePeriodButtons();
     plotCombinedChart(historicalData, forecastData);
     buildForecastTable(forecastData);
@@ -260,7 +252,6 @@ async function fetchForecast() {
 }
 
 function showTimePeriodButtons() {
-  // Check if buttons already exist
   if (document.querySelector('.time-period-buttons')) {
     return;
   }
@@ -294,7 +285,6 @@ function showTimePeriodButtons() {
     `;
     
     button.addEventListener("click", async () => {
-      // Update active button
       document.querySelectorAll('.period-btn').forEach(btn => {
         btn.style.backgroundColor = '#444';
         btn.style.color = '#fff';
@@ -305,12 +295,10 @@ function showTimePeriodButtons() {
       button.classList.add('active');
       
       currentPeriod = period;
-      
-      // Fetch new historical data
+  
       const newHistoricalData = await fetchHistoricalData(currentSymbol, period);
       historicalData = newHistoricalData;
       
-      // Update chart
       plotCombinedChart(historicalData, forecastData);
     });
     
@@ -322,25 +310,21 @@ function showTimePeriodButtons() {
 
 function plotCombinedChart(historical, forecast) {
   const ctx = document.getElementById("forecastChart").getContext("2d");
-  
-  // Prepare historical data
+
   const historicalLabels = historical.map(d => d.date);
   const historicalOpen = historical.map(d => d.open);
   const historicalHigh = historical.map(d => d.high);
   const historicalLow = historical.map(d => d.low);
   const historicalClose = historical.map(d => d.close);
   
-  // Prepare forecast data
   const forecastLabels = forecast.map(d => d.date);
   const forecastOpen = forecast.map(d => d.open);
   const forecastHigh = forecast.map(d => d.high);
   const forecastLow = forecast.map(d => d.low);
   const forecastClose = forecast.map(d => d.close);
   
-  // Combine labels
   const allLabels = [...historicalLabels, ...forecastLabels];
   
-  // Create datasets with null values to separate historical and forecast
   const createDataset = (historicalData, forecastData, label, color, forecastColor) => {
     const combinedData = [
       ...historicalData,
@@ -372,7 +356,7 @@ function plotCombinedChart(historical, forecast) {
         tension: 0.2,
         pointRadius: 2,
         pointHoverRadius: 5,
-        borderDash: [5, 5], // Dashed line for forecast
+        borderDash: [5, 5], 
         pointStyle: 'triangle'
       }
     ];
@@ -484,7 +468,6 @@ document.getElementById("searchBtn").addEventListener("click", () => {
   document.querySelector(".chart-section").style.display = "none";
   document.querySelector(".table-section").style.display = "none";
   
-  // Remove existing time period buttons
   const existingButtons = document.querySelector('.time-period-buttons');
   if (existingButtons) {
     existingButtons.remove();
@@ -501,7 +484,6 @@ document.getElementById("searchBtn").addEventListener("click", () => {
 
 document.getElementById("forecastBtn").addEventListener("click", fetchForecast);
 
-// Dropdown Suggestions
 const input = document.getElementById("symbolInput");
 const dropdown = document.getElementById("suggestionsList");
 
